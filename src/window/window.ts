@@ -11,6 +11,7 @@ import 'ace-builds/src-noconflict/theme-clouds_midnight';
 import 'ace-builds/src-noconflict/snippets/html';
 
 import { ipcRenderer } from 'electron';
+import throttle from 'lodash.throttle';
 import Tabs from './Tabs';
 import SettingStore from '../utils/SettingStore';
 import SplitElement from './SplitElement';
@@ -118,6 +119,29 @@ if (openFiles.length) {
 
 window.htmlClipboard = new HTMLClipboard(editor);
 window.formatEditor = () => format(editor, tabs.currentTab.mode, settings);
+
+const sendOverlay = throttle(() => {
+        if (tabs.currentTab.mode !== 'svg') {
+                tabs.currentTab.webview.executeJavaScript('window.highlightSvgElement(null)').catch(() => {});
+                return;
+        }
+
+        const pos = editor.getCursorPosition();
+        const index = editor.session.doc.positionToIndex(pos);
+        const text = editor.getValue().substring(0, index);
+        const regex = /<[^>]*\bid\s*=\s*['"]([^'"]+)['"][^>]*>/g;
+        let m: RegExpExecArray | null;
+        let lastId: string | undefined;
+        while ((m = regex.exec(text))) {
+                lastId = m[1];
+        }
+
+        const js = `window.highlightSvgElement(${lastId ? JSON.stringify(lastId) : 'null'})`;
+        tabs.currentTab.webview.executeJavaScript(js).catch(() => {});
+}, 200);
+
+editor.selection.on('changeCursor', sendOverlay);
+editor.session.on('change', sendOverlay);
 
 let forceClose = false;
 window.addEventListener('beforeunload', async e => {

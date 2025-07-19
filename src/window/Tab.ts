@@ -65,10 +65,43 @@ export default class Tab {
 			this.onThemeChange
 		);
 
-		this.webview.addEventListener('did-finish-load', () => {
-			this.updateTitle();
-			this.faviconElement.removeAttribute('src');
-		});
+                this.webview.addEventListener('did-finish-load', () => {
+                        this.updateTitle();
+                        this.faviconElement.removeAttribute('src');
+                        this.webview.executeJavaScript(`
+                                (function(){
+                                        window.highlightSvgElement = function(id){
+                                                let ov = document.getElementById('burrow-svg-overlay');
+                                                if(!ov){
+                                                        ov = document.createElement('div');
+                                                        ov.id = 'burrow-svg-overlay';
+                                                        Object.assign(ov.style, {
+                                                                position: 'absolute',
+                                                                pointerEvents: 'none',
+                                                                border: '2px dashed red',
+                                                                background: 'rgba(255,0,0,0.2)'
+                                                        });
+                                                        document.body.appendChild(ov);
+                                                }
+                                                if(!id){
+                                                        ov.style.display='none';
+                                                        return;
+                                                }
+                                                const el = document.getElementById(id);
+                                                if(!el){
+                                                        ov.style.display='none';
+                                                        return;
+                                                }
+                                                const r = el.getBoundingClientRect();
+                                                ov.style.display='block';
+                                                ov.style.left=r.left+'px';
+                                                ov.style.top=r.top+'px';
+                                                ov.style.width=r.width+'px';
+                                                ov.style.height=r.height+'px';
+                                        };
+                                })();
+                        `);
+                });
 
 		this.webview.addEventListener('page-title-updated', () => this.updateTitle());
 		this.webview.addEventListener('page-favicon-updated', e => this.faviconElement.src = e.favicons[0]);
