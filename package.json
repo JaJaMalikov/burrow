@@ -10,12 +10,13 @@
 	},
 	"license": "LGPL-3.0-or-later",
 	"main": "./build/main.js",
-	"scripts": {
-		"start": "webpack --mode=development && electron .",
-		"build": "webpack --mode=production && electron-builder --publish never",
-		"release": "webpack --mode=production && electron-builder",
-		"lint": "eslint --ext .ts ."
-	},
+        "scripts": {
+                "start": "webpack --mode=development && electron .",
+                "build": "webpack --mode=production && electron-builder --publish never",
+                "release": "webpack --mode=production && electron-builder",
+                "lint": "eslint --ext .ts .",
+                "web": "webpack --config webpack.web.config.ts --mode=development && node server.js"
+        },
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/BrandonXLF/burrow.git"
@@ -43,15 +44,16 @@
 		"typescript": "^5.5.3",
 		"webpack-cli": "^6.0.1"
 	},
-	"dependencies": {
-		"@prettier/plugin-xml": "^3.4.1",
-		"ace-builds": "^1.35.2",
-		"electron-store": "^10.0.0",
-		"electron-updater": "^6.2.1",
-		"lodash.throttle": "^4.1.1",
-		"prettier": "^3.5.1",
-		"showdown": "^2.1.0"
-	},
+        "dependencies": {
+                "@prettier/plugin-xml": "^3.4.1",
+                "ace-builds": "^1.35.2",
+                "electron-store": "^10.0.0",
+                "electron-updater": "^6.2.1",
+                "lodash.throttle": "^4.1.1",
+                "prettier": "^3.5.1",
+                "showdown": "^2.1.0",
+                "express": "^4.18.2"
+        },
 	"build": {
 		"appId": "me.brandonfowler.burrow",
 		"productName": "Burrow HTML and Markdown",
