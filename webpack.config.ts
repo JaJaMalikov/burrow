@@ -42,16 +42,16 @@ const mainConfig: Configuration = {
 };
 
 const rendererConfig: Configuration = {
-	...commonConfig,
-	target: 'electron-renderer',
-	entry: {
-		window: './src/window/window.ts'
-	},
-	plugins: [
-		new HtmlWebpackPlugin({
-			filename: 'window.html',
-			template: './src/window/window.html'
-		}),
+        ...commonConfig,
+        target: 'electron-renderer',
+        entry: {
+                window: './src/window/window.ts'
+        },
+        plugins: [
+                new HtmlWebpackPlugin({
+                        filename: 'window.html',
+                        template: './src/window/window.html'
+                }),
 		new MiniCssExtractPlugin({
 			filename: 'window.css'
 		})
@@ -76,11 +76,25 @@ const rendererConfig: Configuration = {
 };
 
 const preloadConfig: Configuration = {
-	...commonConfig,
-	target: 'electron-preload',
-	entry: {
-		preload: './src/preload/preload.ts'
-	}
+        ...commonConfig,
+        target: 'electron-preload',
+        entry: {
+                preload: './src/preload/preload.ts'
+        }
 };
 
-export default [mainConfig, rendererConfig, preloadConfig];
+export default (env: { web?: boolean } = {}): Configuration[] => {
+        const isWeb = Boolean(env.web);
+        const configs: Configuration[] = [];
+
+        if (!isWeb) configs.push(mainConfig);
+
+        configs.push({
+                ...rendererConfig,
+                target: isWeb ? 'web' : 'electron-renderer'
+        });
+
+        if (!isWeb) configs.push(preloadConfig);
+
+        return configs;
+};

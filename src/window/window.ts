@@ -10,7 +10,17 @@ import 'ace-builds/src-noconflict/theme-clouds';
 import 'ace-builds/src-noconflict/theme-clouds_midnight';
 import 'ace-builds/src-noconflict/snippets/html';
 
-import { ipcRenderer } from 'electron';
+let ipcRenderer: typeof import('electron')['ipcRenderer'];
+try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+        ipcRenderer = require('electron').ipcRenderer;
+} catch {
+        ipcRenderer = {
+                send() {},
+                on() {},
+                invoke: async () => undefined
+        } as unknown as typeof import('electron')['ipcRenderer'];
+}
 import Tabs from './Tabs';
 import SettingStore from '../utils/SettingStore';
 import SplitElement from './SplitElement';
@@ -32,10 +42,12 @@ declare global {
 }
 
 const openFilePrefix = '--open-file=',
-	openFiles = process.argv
-		.filter(arg => arg.startsWith(openFilePrefix))
-		.map(arg => arg.substring(openFilePrefix.length)),
-	webContentsIdPromise = ipcRenderer.invoke('get-webcontents-id'),
+        openFiles = typeof process !== 'undefined' && Array.isArray(process.argv)
+                ? process.argv
+                        .filter(arg => arg.startsWith(openFilePrefix))
+                        .map(arg => arg.substring(openFilePrefix.length))
+                : [],
+        webContentsIdPromise = ipcRenderer.invoke('get-webcontents-id'),
 	settings = new SettingStore(() => ipcRenderer.send('renderer-settings-updated')),
 	themeMode = new ThemeMode(),
 	editor = ace.edit(
@@ -132,12 +144,12 @@ window.addEventListener('beforeunload', async e => {
 });
 
 document.body.addEventListener('keyup', e => ipcRenderer.send(
-	'keyboard-input',
-	true,
-	e.key,
-	process.platform === 'darwin' ? e.metaKey : e.ctrlKey,
-	e.altKey,
-	e.shiftKey
+        'keyboard-input',
+        true,
+        e.key,
+        (typeof process !== 'undefined' && process.platform === 'darwin') ? e.metaKey : e.ctrlKey,
+        e.altKey,
+        e.shiftKey
 ));
 
 ipcRenderer.on('settings-updated', () => settings.markExternalSet());
