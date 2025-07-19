@@ -119,6 +119,10 @@ if (openFiles.length) {
 window.htmlClipboard = new HTMLClipboard(editor);
 window.formatEditor = () => format(editor, tabs.currentTab.mode, settings);
 
+editor.on('change', () => tabs.currentTab.highlightFromEditor(editor));
+editor.selection.on('changeCursor', () => tabs.currentTab.highlightFromEditor(editor));
+editor.selection.on('changeSelection', () => tabs.currentTab.highlightFromEditor(editor));
+
 let forceClose = false;
 window.addEventListener('beforeunload', async e => {
 	if (forceClose || !tabs.tabs.some(tab => tab.unsaved)) return;

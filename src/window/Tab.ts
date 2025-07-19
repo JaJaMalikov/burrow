@@ -387,16 +387,17 @@ export default class Tab {
 			this.tabStore.removeTab(this);
 	}
 	
-	dispose(): void {
-		this.watchController?.abort();
-		this.switcher.dispose();
-		this.tabElement.remove();
-		this.webviewSubContainer.remove();
-		this.devtools.remove();
-		this.tabStore.themeMode.removeListener('change', this.onThemeChange);
-		this.removeCSSUpdateListener?.();
-		ipcRenderer.send('delete-session', this.partition);
-	}
+        dispose(): void {
+                this.watchController?.abort();
+                this.switcher.dispose();
+                this.tabElement.remove();
+                this.webviewSubContainer.remove();
+                this.devtools.remove();
+                this.tabStore.themeMode.removeListener('change', this.onThemeChange);
+                this.removeCSSUpdateListener?.();
+                void this.highlightSVG();
+                ipcRenderer.send('delete-session', this.partition);
+        }
 	
 	getTabData(): TabData {
 		return {
@@ -407,13 +408,63 @@ export default class Tab {
 		};
 	}
 	
-	updateUnsaved(): void {
-		if (this.unsaved) {
-			if (!this.tabStore.settings.get('autoSave') || !this.path) this.tabElement.classList.add('unsaved');
-		} else {
-			this.tabElement.classList.remove('unsaved');
-		}
-		
-		this.updateTitle();
-	}
+        updateUnsaved(): void {
+                if (this.unsaved) {
+                        if (!this.tabStore.settings.get('autoSave') || !this.path) this.tabElement.classList.add('unsaved');
+                } else {
+                        this.tabElement.classList.remove('unsaved');
+                }
+
+                this.updateTitle();
+        }
+
+        async highlightSVG(id?: string): Promise<void> {
+                await this.webviewReady;
+
+                const js = `(() => {
+                        const overlayId = '__burrow_svg_overlay';
+                        const id = ${id ? JSON.stringify(id) : 'null'};
+                        let overlay = document.getElementById(overlayId);
+                        if (!id) { overlay?.remove(); return; }
+                        const el = document.getElementById(id);
+                        if (!el) { overlay?.remove(); return; }
+                        const rect = el.getBoundingClientRect();
+                        if (!overlay) {
+                                overlay = document.createElement('div');
+                                overlay.id = overlayId;
+                                overlay.style.position = 'absolute';
+                                overlay.style.pointerEvents = 'none';
+                                overlay.style.background = 'rgba(0, 128, 255, 0.2)';
+                                overlay.style.outline = '2px solid #0080ff';
+                                document.body.appendChild(overlay);
+                        }
+                        overlay.style.left = rect.left + 'px';
+                        overlay.style.top = rect.top + 'px';
+                        overlay.style.width = rect.width + 'px';
+                        overlay.style.height = rect.height + 'px';
+                })();`;
+
+                this.webview.executeJavaScript(js);
+        }
+
+        highlightFromEditor(editor: Ace.Editor): void {
+                if (editor.session !== this.editorSession) return;
+
+                const pos = editor.getCursorPosition();
+                const doc = editor.session.getDocument();
+                const index = doc.positionToIndex(pos);
+                const text = this.editorSession.getValue();
+                const start = text.lastIndexOf('<', index);
+                const end = text.indexOf('>', index);
+
+                if (start === -1 || end === -1) {
+                        void this.highlightSVG();
+                        return;
+                }
+
+                const tagText = text.substring(start, end + 1);
+                const match = tagText.match(/id\s*=\s*['"]([^'"]+)['"]/);
+
+                void this.highlightSVG(match ? match[1] : undefined);
+        }
 }

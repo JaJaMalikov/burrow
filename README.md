@@ -13,3 +13,7 @@ Burrow is an HTML, markdown, and SVG viewer, code editor, and debugger built wit
 Before build commands can be run `npm` must be installed and dependencies must be installed with `npm install`. 
 
 To create and run a development distribution run `npm start` and to create a production build run `npm run build`. To lint your code for issues, run `npm run lint`.
+
+## Serving the production build
+
+Run `npm run serve` after building to host the `build` directory on port 8080. The server listens on all interfaces so other devices on your LAN can access the app at `http://<your-ip>:8080`.

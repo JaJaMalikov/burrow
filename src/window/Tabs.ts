@@ -96,19 +96,24 @@ export default class Tabs {
 		this.createTab({ path }, index);
 	}
 	
-	selectTab(tab: Tab): void {
-		this.editor.setSession(tab.editorSession);
+        selectTab(tab: Tab): void {
+                const previous = this.currentTab;
+                this.editor.setSession(tab.editorSession);
 
-		document.querySelectorAll('.current').forEach(x => x.classList.remove('current'));
-		
-		this.currentTab = tab;
-		this.updateNoPathAttribute();
+                document.querySelectorAll('.current').forEach(x => x.classList.remove('current'));
 
-		tab.tabElement.classList.add('current');
-		tab.webviewSubContainer.classList.add('current');
-		tab.devtools.classList.add('current');
-		tab.switcher.el.classList.add('current');
-	}
+                previous?.highlightSVG();
+
+                this.currentTab = tab;
+                this.updateNoPathAttribute();
+
+                tab.tabElement.classList.add('current');
+                tab.webviewSubContainer.classList.add('current');
+                tab.devtools.classList.add('current');
+                tab.switcher.el.classList.add('current');
+
+                tab.highlightFromEditor(this.editor);
+        }
 
 	updateNoPathAttribute() {
 		if (this.currentTab.path) {
