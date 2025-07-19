@@ -14,7 +14,8 @@
 		"start": "webpack --mode=development && electron .",
 		"build": "webpack --mode=production && electron-builder --publish never",
 		"release": "webpack --mode=production && electron-builder",
-		"lint": "eslint --ext .ts ."
+                "lint": "eslint --ext .ts .",
+                "serve": "npx http-server build -a 0.0.0.0 -p 8080"
 	},
 	"repository": {
 		"type": "git",
@@ -41,7 +42,8 @@
 		"ts-loader": "^9.5.1",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.5.3",
-		"webpack-cli": "^6.0.1"
+                "webpack-cli": "^6.0.1",
+                "http-server": "^14.1.1"
 	},
 	"dependencies": {
 		"@prettier/plugin-xml": "^3.4.1",

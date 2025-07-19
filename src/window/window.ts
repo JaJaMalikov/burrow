@@ -119,6 +119,45 @@ if (openFiles.length) {
 window.htmlClipboard = new HTMLClipboard(editor);
 window.formatEditor = () => format(editor, tabs.currentTab.mode, settings);
 
+function findSvgElementId(text: string, index: number): string | undefined {
+        let pos = text.lastIndexOf('<', index);
+        while (pos >= 0) {
+                const char = text[pos + 1];
+                if (char && char !== '/' && char !== '!' && char !== '?') {
+                        const end = text.indexOf('>', pos);
+                        if (end === -1) return undefined;
+                        const tag = text.slice(pos, end + 1);
+                        const match = tag.match(/id\s*=\s*['"]([^'"]+)['"]/);
+                        if (match) return match[1];
+                }
+                pos = text.lastIndexOf('<', pos - 1);
+        }
+        return undefined;
+}
+
+async function updateSvgOverlay() {
+        const tab = tabs.currentTab;
+
+        if (tab.mode !== 'svg') {
+                tab.highlightSvgElement(undefined);
+                return;
+        }
+
+        const pos = editor.getCursorPosition();
+        const index = tab.editorSession.doc.positionToIndex(pos);
+        const id = findSvgElementId(tab.editorSession.getValue(), index);
+        tab.highlightSvgElement(id);
+}
+
+editor.selection.on('changeCursor', updateSvgOverlay);
+editor.on('change', updateSvgOverlay);
+
+const origSelectTab = tabs.selectTab.bind(tabs);
+tabs.selectTab = (tab) => {
+        origSelectTab(tab);
+        updateSvgOverlay();
+};
+
 let forceClose = false;
 window.addEventListener('beforeunload', async e => {
 	if (forceClose || !tabs.tabs.some(tab => tab.unsaved)) return;

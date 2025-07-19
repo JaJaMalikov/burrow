@@ -255,16 +255,57 @@ export default class Tab {
 		}
 	}
 	
-	async linkDevtools() {
-		await this.webviewReady;
-		await this.devtoolsReady;
+        async linkDevtools() {
+                await this.webviewReady;
+                await this.devtoolsReady;
 
-		ipcRenderer.send(
-			'set-devtool-webview',
-			this.webview.getWebContentsId(),
-			this.devtools.getWebContentsId()
-		);
-	}
+                ipcRenderer.send(
+                        'set-devtool-webview',
+                        this.webview.getWebContentsId(),
+                        this.devtools.getWebContentsId()
+                );
+        }
+
+        async highlightSvgElement(id?: string) {
+                await this.webviewReady;
+
+                const js = `(() => {
+                        let overlay = window.__burrowSvgOverlay;
+                        if (!overlay) {
+                                overlay = document.createElement('div');
+                                overlay.style.position = 'absolute';
+                                overlay.style.pointerEvents = 'none';
+                                overlay.style.background = 'rgba(255,0,0,0.15)';
+                                overlay.style.outline = '2px dashed rgba(255,0,0,0.5)';
+                                overlay.style.zIndex = '999999';
+                                window.__burrowSvgOverlay = overlay;
+                                document.body.appendChild(overlay);
+                        }
+
+                        const id = ${id ? JSON.stringify(id) : 'null'};
+
+                        if (!id) {
+                                overlay.style.display = 'none';
+                                return;
+                        }
+
+                        const el = document.getElementById(id);
+
+                        if (!el) {
+                                overlay.style.display = 'none';
+                                return;
+                        }
+
+                        const rect = el.getBoundingClientRect();
+                        overlay.style.display = '';
+                        overlay.style.left = rect.left + 'px';
+                        overlay.style.top = rect.top + 'px';
+                        overlay.style.width = rect.width + 'px';
+                        overlay.style.height = rect.height + 'px';
+                })();`;
+
+                this.webview.executeJavaScript(js).catch(() => { });
+        }
 	
 	async save(saveType = SaveType.Standard): Promise<boolean> {
 		const value = this.editorSession.getValue();
