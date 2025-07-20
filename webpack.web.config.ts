@@ -2,6 +2,7 @@ import type { Configuration } from 'webpack';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import webpack from 'webpack';
 
 const config: Configuration = {
   target: 'web',
@@ -47,10 +48,21 @@ const config: Configuration = {
       filename: 'window.html',
       template: './src/window/window.html'
     }),
-    new MiniCssExtractPlugin({ filename: 'window.css' })
+    new MiniCssExtractPlugin({ filename: 'window.css' }),
+    new webpack.ProvidePlugin({ process: 'process/browser' })
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      electron: path.resolve(__dirname, 'src/web/electron.ts'),
+      'electron-store': path.resolve(__dirname, 'src/web/electron-store.ts'),
+      'fs/promises': path.resolve(__dirname, 'src/web/fs.ts'),
+      path: path.resolve(__dirname, 'src/web/path.ts'),
+      url: path.resolve(__dirname, 'src/web/url.ts')
+    },
+    fallback: {
+      process: require.resolve('process/browser')
+    }
   }
 };
 
