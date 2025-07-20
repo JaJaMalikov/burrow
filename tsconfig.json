@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"sourceMap": false,
+		"esModuleInterop": true,
+		"outDir": "dist",
+		"baseUrl": ".",
+		"allowSyntheticDefaultImports": true,
+		"target": "ESNext",
+		"resolveJsonModule": true
+	},
+	"ts-node": {
+		"compilerOptions": {
+			"module": "CommonJS"
+		}
+	}
+}

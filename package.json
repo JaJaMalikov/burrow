@@ -1,0 +1,111 @@
+{
+	"name": "burrow",
+	"description": "HTML, markdown, and SVG viewer and code editor with development tools.",
+	"version": "1.9.0",
+	"homepage": "https://www.brandonfowler.me/burrow/",
+	"author": {
+		"name": "Brandon Fowler",
+		"email": "burrow@brandonfowler.me",
+		"url": "https://www.brandonfowler.me/"
+	},
+	"license": "LGPL-3.0-or-later",
+	"main": "./build/main.js",
+        "scripts": {
+                "start": "webpack --mode=development && electron .",
+                "build": "webpack --mode=production && electron-builder --publish never",
+                "release": "webpack --mode=production && electron-builder",
+                "lint": "eslint --ext .ts .",
+                "web": "webpack --config webpack.web.config.ts --mode=development && node server.js"
+        },
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/BrandonXLF/burrow.git"
+	},
+	"devDependencies": {
+		"@types/lodash.throttle": "^4.1.9",
+		"@types/showdown": "^2.0.6",
+		"@typescript-eslint/eslint-plugin": "^8.24.1",
+		"@typescript-eslint/parser": "^8.24.1",
+		"css-loader": "^7.1.2",
+		"electron": "^36",
+		"electron-builder": "^26.0.7",
+		"eslint": "^8.57.0",
+		"eslint-plugin-deprecation": "^3.0.0",
+		"file-loader": "^6.2.0",
+		"html-loader": "^5.0.0",
+		"html-webpack-plugin": "^5.6.0",
+		"less": "^4.2.0",
+		"less-loader": "^12.2.0",
+		"mini-css-extract-plugin": "^2.9.0",
+		"node-loader": "^2.0.0",
+		"style-loader": "^4.0.0",
+		"ts-loader": "^9.5.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.5.3",
+		"webpack-cli": "^6.0.1"
+	},
+        "dependencies": {
+                "@prettier/plugin-xml": "^3.4.1",
+                "ace-builds": "^1.35.2",
+                "electron-store": "^10.0.0",
+                "electron-updater": "^6.2.1",
+                "lodash.throttle": "^4.1.1",
+                "prettier": "^3.5.1",
+                "showdown": "^2.1.0",
+                "express": "^4.18.2"
+        },
+	"build": {
+		"appId": "me.brandonfowler.burrow",
+		"productName": "Burrow HTML and Markdown",
+		"executableName": "burrow",
+		"files": [
+			"build/*",
+			"package.json"
+		],
+		"extraFiles": [
+			"LICENSE.md"
+		],
+		"fileAssociations": [
+			{
+				"ext": "html",
+				"name": "HTML File"
+			},
+			{
+				"ext": "htm",
+				"name": "HTML File"
+			},
+			{
+				"ext": "md",
+				"name": "Markdown File"
+			},
+			{
+				"ext": "markdown",
+				"name": "Markdown File"
+			},
+			{
+				"ext": "svg",
+				"name": "SVG File"
+			}
+		],
+		"publish": [
+			"github"
+		],
+		"win": {
+			"target": [
+				"nsis",
+				"portable"
+			]
+		},
+		"mac": {
+			"target": "default"
+		},
+		"linux": {
+			"target": [
+				"deb",
+				"rpm",
+				"AppImage"
+			],
+			"category": "Development"
+		}
+	}
+}
