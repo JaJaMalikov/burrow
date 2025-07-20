@@ -16,7 +16,10 @@ const config: Configuration = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: { configFile: 'tsconfig.web.json' }
+        },
         exclude: /node_modules/
       },
       {
@@ -50,7 +53,20 @@ const config: Configuration = {
     new MiniCssExtractPlugin({ filename: 'window.css' })
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      'electron-store': path.resolve(__dirname, 'src/web/electron-store.ts'),
+      'electron': path.resolve(__dirname, 'src/web/electron.ts')
+    },
+    fallback: {
+      path: false,
+      fs: false,
+      crypto: false,
+      assert: false,
+      util: false,
+      os: false,
+      url: false
+    }
   }
 };
 
