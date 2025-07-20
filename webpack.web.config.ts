@@ -2,6 +2,10 @@ import type { Configuration } from 'webpack';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
+import stdLibBrowser from 'node-stdlib-browser';
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
+const { NodeProtocolUrlPlugin } = require('node-stdlib-browser/helpers/webpack/plugin');
 
 const config: Configuration = {
   target: 'web',
@@ -47,10 +51,28 @@ const config: Configuration = {
       filename: 'window.html',
       template: './src/window/window.html'
     }),
-    new MiniCssExtractPlugin({ filename: 'window.css' })
+    new MiniCssExtractPlugin({ filename: 'window.css' }),
+    new NodePolyfillPlugin(),
+    new NodeProtocolUrlPlugin()
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      ...stdLibBrowser,
+      'node:fs': false,
+      'node:path': require.resolve('path-browserify'),
+      'node:url': require.resolve('url/'),
+      'node:process': require.resolve('process/browser'),
+      'node:assert': require.resolve('assert/'),
+      'node:crypto': require.resolve('crypto-browserify'),
+      'node:os': require.resolve('os-browserify/browser'),
+      'node:util': require.resolve('util/'),
+      'fs/promises': false
+    },
+    fallback: {
+      electron: false,
+      fs: false
+    }
   }
 };
 
