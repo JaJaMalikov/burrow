@@ -2,6 +2,7 @@ import type { Configuration } from 'webpack';
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
 
 const config: Configuration = {
   target: 'web',
@@ -47,10 +48,20 @@ const config: Configuration = {
       filename: 'window.html',
       template: './src/window/window.html'
     }),
-    new MiniCssExtractPlugin({ filename: 'window.css' })
+    new MiniCssExtractPlugin({ filename: 'window.css' }),
+    new NodePolyfillPlugin()
   ],
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      'electron': path.resolve(__dirname, 'src/web/electron.ts'),
+      'electron-store': path.resolve(__dirname, 'src/web/electron-store.ts')
+    },
+    fallback: {
+      fs: false,
+      'fs/promises': false,
+      electron: false
+    }
   }
 };
 
